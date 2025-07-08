@@ -43,82 +43,74 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Widget result = MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            spacing: 10,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Running on: $_platformVersion\n'),
-              ElevatedButton(
-                onPressed: () {
-                  FlLinuxWindowManager.instance.createWindow(
-                    windowId: "new_window",
-                    title: "Sample",
-                    width: 500,
-                    height: 300,
-                    isLayer: true,
-                    args: ["--class=sample", "--name=sample"],
-                  );
-                },
-                child: const Text('Create Window'),
-              ),
-              ElevatedButton(
+    print('building with input region isNegative: ${passingThrough}');
+    return InputRegion(
+      isNegative: passingThrough,
+      child: MaterialApp(
+        themeMode: ThemeMode.dark,
+        home: Scaffold(
+          backgroundColor: passingThrough ? Colors.transparent : null,
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: Center(
+            child: Column(
+              spacing: 10,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Running on: $_platformVersion\n'),
+                ElevatedButton(
                   onPressed: () {
-                    FlLinuxWindowManager.instance
-                        .hideWindow(windowId: "new_window");
+                    FlLinuxWindowManager.instance.createWindow(
+                      windowId: "new_window",
+                      title: "Sample",
+                      width: 500,
+                      height: 300,
+                      isLayer: true,
+                      args: ["--class=sample", "--name=sample"],
+                    );
                   },
-                  child: const Text('Hide Window')),
-              ElevatedButton(
-                  onPressed: () {
-                    FlLinuxWindowManager.instance
-                        .showWindow(windowId: "new_window");
-                  },
-                  child: const Text('Show Window')),
-              ElevatedButton(
-                  onPressed: () async {
-                    await FlLinuxWindowManager.instance
-                        .createSharedMethodChannel(
-                            channelName: "shared_example",
-                            shareWithWindowId: "main",
-                            windowId: "new_window");
-
-                    channel.invokeMethod("SampleMethodName");
-                  },
-                  child: Text("Create shared message")),
-              InputRegion(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      passingThrough = !passingThrough;
-                    });
-                    print('set passingThrough to $passingThrough');
-                  },
-                  child: Text("Input Region"),
+                  child: const Text('Create Window'),
                 ),
-              ),
-            ],
+                ElevatedButton(
+                    onPressed: () {
+                      FlLinuxWindowManager.instance
+                          .hideWindow(windowId: "new_window");
+                    },
+                    child: const Text('Hide Window')),
+                ElevatedButton(
+                    onPressed: () {
+                      FlLinuxWindowManager.instance
+                          .showWindow(windowId: "new_window");
+                    },
+                    child: const Text('Show Window')),
+                ElevatedButton(
+                    onPressed: () async {
+                      await FlLinuxWindowManager.instance
+                          .createSharedMethodChannel(
+                              channelName: "shared_example",
+                              shareWithWindowId: "main",
+                              windowId: "new_window");
+
+                      channel.invokeMethod("SampleMethodName");
+                    },
+                    child: Text("Create shared message")),
+                InputRegion(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        passingThrough = !passingThrough;
+                      });
+                      print('set passingThrough to $passingThrough');
+                    },
+                    child: Text("Input Region"),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-    if (passingThrough) {
-      print('building with negative input region');
-      result = InputRegion.negative(
-        key: ValueKey(passingThrough),
-        child: result,
-      );
-    } else {
-      print('building with positive input region');
-      result = InputRegion(
-        key: ValueKey(passingThrough),
-        child: result,
-      );
-    }
-    return result;
   }
 }
