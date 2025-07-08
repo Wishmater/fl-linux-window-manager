@@ -3,47 +3,51 @@ import 'package:flutter/cupertino.dart';
 
 class InputRegion extends StatefulWidget {
   final Widget child;
-  final bool _isNegative;
+  final bool isNegative;
 
-  const InputRegion({super.key, required this.child}) : _isNegative = false;
-  const InputRegion.negative({super.key, required this.child})
-      : _isNegative = true;
+  const InputRegion({
+    required this.child,
+    this.isNegative = false,
+    super.key,
+  });
+  const InputRegion.negative({
+    super.key,
+    required this.child,
+  }) : isNegative = true;
 
   @override
   State<InputRegion> createState() => _InputRegionState();
 }
 
 class _InputRegionState extends State<InputRegion> {
-  late final GlobalKey _key;
+  final GlobalKey _key = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-
-    /// Setup a new global key for this widget.
-    _key = GlobalKey();
-
+    // Add the input region GlobalKey to the controller
     InputRegionController.addKey(
       _key,
-      isNegative: widget._isNegative,
+      isNegative: widget.isNegative,
     );
+  }
 
-    /// Get the initial details of the widget after the initial frame.
-    /// and update the input region.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      InputRegionController.refreshInputRegion();
-    });
+  @override
+  void didUpdateWidget(covariant InputRegion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isNegative != widget.isNegative) {
+      // Update the key in the controller with the new isNegative value
+      InputRegionController.addKey(
+        _key,
+        isNegative: widget.isNegative,
+      );
+    }
   }
 
   @override
   void dispose() {
     /// Remove the input region key from the controller.
-    InputRegionController.removeKey(
-      _key,
-      isNegative: widget._isNegative,
-    );
-    InputRegionController.refreshInputRegion();
-
+    InputRegionController.removeKey(_key);
     super.dispose();
   }
 
@@ -52,10 +56,7 @@ class _InputRegionState extends State<InputRegion> {
     return NotificationListener<SizeChangedLayoutNotification>(
       onNotification: (notification) {
         /// Update the input region when the size changes
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          InputRegionController.refreshInputRegion();
-        });
-
+        InputRegionController.notifyRegionChange(_key);
         return false;
       },
       child: SizeChangedLayoutNotifier(

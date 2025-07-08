@@ -6,13 +6,13 @@ class InputRegionController {
   ///
   /// The widgets attched to this key are representing positive input regions,
   /// that is we should enable inputs in this region.
-  static final List<GlobalKey> _positiveRegionKeys = [];
+  static final Set<GlobalKey> _positiveRegionKeys = {};
 
   /// A list of global keys attached to the InputRegion widgets.
   ///
   /// The widgets attched to this key are representing negative input regions,
   /// that is we should disable inputs in this region.
-  static final List<GlobalKey> _negativeRegionKeys = [];
+  static final Set<GlobalKey> _negativeRegionKeys = {};
 
   /// Adds a global key to the list of keys.
   static void addKey(
@@ -20,26 +20,43 @@ class InputRegionController {
     bool isNegative = false,
   }) {
     if (isNegative) {
+      _positiveRegionKeys.remove(key); // just in case a key switches isNegative
       _negativeRegionKeys.add(key);
     } else {
+      _negativeRegionKeys.remove(key); // just in case a key switches isNegative
       _positiveRegionKeys.add(key);
     }
+    _ensureUpdateScheduled();
   }
 
   /// Removes a global key from the list of keys.
-  static void removeKey(GlobalKey key, {bool isNegative = false}) {
-    if (isNegative) {
-      _negativeRegionKeys.remove(key);
-    } else {
-      _positiveRegionKeys.remove(key);
-    }
+  static void removeKey(GlobalKey key) {
+    _negativeRegionKeys.remove(key);
+    _positiveRegionKeys.remove(key);
+    _ensureUpdateScheduled();
+  }
+
+  static void notifyRegionChange(GlobalKey key) {
+    _ensureUpdateScheduled();
+  }
+
+  static bool _isUpdateScheduled = false;
+  static void _ensureUpdateScheduled() {
+    if (_isUpdateScheduled) return;
+    _isUpdateScheduled = true;
+    // Any call to refreshInputRegion must be delayed a frame to ensure size and position
+    // are calculated correctly. This also ensure it is called only once per frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshInputRegion();
+      _isUpdateScheduled = false;
+    });
   }
 
   /// This will be called whenever there is a change in the InputRegion widget.
   /// like size change, position change, etc.
   ///
   /// This will change the native window input region to the new input region.
-  static void refreshInputRegion() {
+  static void _refreshInputRegion() {
     /// Sort the keys based on the depth of the widget.
     final List<({GlobalKey key, bool isNegative})> keys = [
       ..._positiveRegionKeys.map((key) => (key: key, isNegative: false)),
