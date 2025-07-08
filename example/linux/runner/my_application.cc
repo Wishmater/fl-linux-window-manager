@@ -53,6 +53,7 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+  // up to here is normal flutter code
 
   // add this line for fl_linux_window_manager package to work properly
   FLWM::WindowManager::convertToLayer(GTK_WINDOW(window));
@@ -81,6 +82,7 @@ static void my_application_activate(GApplication* application) {
   gdk_rgba_parse(&background_color, "#00000000");
   fl_view_set_background_color(view, &background_color);
 
+  // from here its just normal flutter code
   gtk_widget_show(GTK_WIDGET(view));
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
