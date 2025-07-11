@@ -40,6 +40,10 @@ class InputRegionController {
     _ensureUpdateScheduled();
   }
 
+  static void notifyConfigChange() {
+    _ensureUpdateScheduled();
+  }
+
   static bool _isUpdateScheduled = false;
   static void _ensureUpdateScheduled() {
     if (_isUpdateScheduled) return;
