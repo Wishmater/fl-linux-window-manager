@@ -1,5 +1,6 @@
 import 'package:fl_linux_window_manager/fl_linux_window_manager.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 
 class InputRegionController {
   /// A list of global keys attached to the InputRegion widgets.
@@ -54,6 +55,8 @@ class InputRegionController {
       _refreshInputRegion();
       _isUpdateScheduled = false;
     });
+    // make sure another frame happens, even if it's not needed for UI
+    SchedulerBinding.instance.scheduleFrame();
   }
 
   /// This will be called whenever there is a change in the InputRegion widget.
