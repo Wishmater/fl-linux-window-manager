@@ -30,6 +30,7 @@ class _InputRegionState extends State<InputRegion> {
       _key,
       isNegative: widget.isNegative,
     );
+    scheduleCheckForPositionOrSizeChanges();
   }
 
   @override
@@ -51,18 +52,32 @@ class _InputRegionState extends State<InputRegion> {
     super.dispose();
   }
 
+  void scheduleCheckForPositionOrSizeChanges() {
+    WidgetsBinding.instance.addPostFrameCallback(checkForPositionOrSizeChanges);
+  }
+
+  Size? previousSize;
+  Offset? previousPosition;
+  void checkForPositionOrSizeChanges(_) {
+    if (!mounted) return;
+    try {
+      RenderBox box = context.findRenderObject()! as RenderBox;
+      final size = box.size;
+      final position = box.localToGlobal(Offset.zero);
+      if (previousSize != null && previousPosition != null) {
+        if (previousSize != size || previousPosition != position) {
+          /// Update the input region when the size changes
+          InputRegionController.notifyRegionChange(_key);
+        }
+      }
+      previousSize = size;
+      previousPosition = position;
+    } catch (_) {}
+    scheduleCheckForPositionOrSizeChanges();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<SizeChangedLayoutNotification>(
-      onNotification: (notification) {
-        /// Update the input region when the size changes
-        InputRegionController.notifyRegionChange(_key);
-        return false;
-      },
-      child: SizeChangedLayoutNotifier(
-        key: _key,
-        child: widget.child,
-      ),
-    );
+    return KeyedSubtree(key: _key, child: widget.child);
   }
 }
