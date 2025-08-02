@@ -298,6 +298,10 @@ void FLWM::WindowManager::setLayerExclusiveZone(int length) {
 
   struct zwlr_layer_surface_v1* layerSurface = gtk_layer_get_zwlr_layer_surface_v1(w);
   zwlr_layer_surface_v1_set_exclusive_zone(layerSurface, length);
+  
+  GdkWindow* gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
+  struct wl_surface* wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
+  wl_surface_commit(wlSurface);
 }
 
 void FLWM::WindowManager::closeWindow() {
