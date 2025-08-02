@@ -73,9 +73,10 @@ void messageHandler(
             unsigned int width = FLWM::MethodCallArgUtils::getInt(methodCall, "width");
             unsigned int height = FLWM::MethodCallArgUtils::getInt(methodCall, "height");
             bool isLayer = FLWM::MethodCallArgUtils::getBool(methodCall, "isLayer");
+            bool initializeFlutter = FLWM::MethodCallArgUtils::getBool(methodCall, "initializeFlutter");
             std::vector<std::string> args = FLWM::MethodCallArgUtils::getStringList(methodCall, "args");
 
-            FLWM::WindowManager::createWindow(windowId, title, width, height, isLayer, args);
+            FLWM::WindowManager::createWindow(windowId, title, width, height, initializeFlutter, isLayer, args);
         }
         else if (strcmp(methodName, "setLayer") == 0) {
             FLWM::WindowManager manager(windowId);

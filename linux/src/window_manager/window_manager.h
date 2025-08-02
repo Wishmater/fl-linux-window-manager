@@ -102,6 +102,7 @@ namespace FLWM {
             std::string title,
             unsigned int width,
             unsigned int height,
+            bool initializeFlutter,
             bool isLayer,
             std::vector<std::string> args);
 

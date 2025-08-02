@@ -37,6 +37,7 @@ class FlLinuxWindowManager {
     required int width,
     required int height,
     bool isLayer = false,
+    bool initializeFlutter = true,
     List<String> args = const [],
     String? windowId,
   }) async {
@@ -51,6 +52,7 @@ class FlLinuxWindowManager {
       'width': width,
       'height': height,
       'isLayer': isLayer,
+      'initializeFlutter': initializeFlutter,
       'args': args,
       'windowId': windowId,
     });

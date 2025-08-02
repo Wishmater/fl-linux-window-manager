@@ -155,6 +155,7 @@ void FLWM::WindowManager::createWindow(
   std::string title,
   unsigned int width,
   unsigned int height,
+  bool initializeFlutter,
   bool isLayer,
   std::vector<std::string> args) {
 
@@ -193,41 +194,42 @@ void FLWM::WindowManager::createWindow(
   /// Show the new window
   gtk_widget_show(GTK_WIDGET(newWindow));
 
-  /// Create the dart VM and start the flutter engine
-  g_autoptr(FlDartProject) project = fl_dart_project_new();
-
-  /// CLI arguments to be passed to the dart entrypoint main() function
-  /// The last item in this array must be a NULL pointer, to indicate the end of the array items.
-  /// Otherwise errors will occur.
-  int cli_args_size = args.size() + 1;
-  char** cli_args = new char* [cli_args_size];
-
-  for (size_t i = 0; i < args.size(); ++i) {
-    cli_args[i] = new char[args[i].size() + 1];
-    strcpy(cli_args[i], args[i].c_str());
+  if (initializeFlutter) {
+    /// Create the dart VM and start the flutter engine
+    g_autoptr(FlDartProject) project = fl_dart_project_new();
+    
+    /// CLI arguments to be passed to the dart entrypoint main() function
+    /// The last item in this array must be a NULL pointer, to indicate the end of the array items.
+    /// Otherwise errors will occur.
+    int cli_args_size = args.size() + 1;
+    char** cli_args = new char* [cli_args_size];
+    
+    for (size_t i = 0; i < args.size(); ++i) {
+        cli_args[i] = new char[args[i].size() + 1];
+        strcpy(cli_args[i], args[i].c_str());
+    }
+    
+    /// CLI arguments list must be terminated with a NULL pointer
+    /// Otherwise, the dart VM will crash
+    cli_args[cli_args_size - 1] = nullptr;
+    
+    fl_dart_project_set_dart_entrypoint_arguments(project, cli_args);
+    
+    
+    FlView* view = fl_view_new(project);
+    gtk_widget_show(GTK_WIDGET(view));
+    gtk_container_add(GTK_CONTAINER(newWindow), GTK_WIDGET(view));
+    
+    /// Register the plugins for the flutter application, to the new flutter view/engine
+    fl_register_plugins(FL_PLUGIN_REGISTRY(view));
+    
+    gtk_widget_grab_focus(GTK_WIDGET(view));
+    /// Free the CLI args array
+    for (size_t i = 0; i < args.size(); ++i) {
+        delete[] cli_args[i];
+    }
+    delete[] cli_args;
   }
-
-  /// CLI arguments list must be terminated with a NULL pointer
-  /// Otherwise, the dart VM will crash
-  cli_args[cli_args_size - 1] = nullptr;
-
-  fl_dart_project_set_dart_entrypoint_arguments(project, cli_args);
-
-
-  FlView* view = fl_view_new(project);
-  gtk_widget_show(GTK_WIDGET(view));
-  gtk_container_add(GTK_CONTAINER(newWindow), GTK_WIDGET(view));
-
-  /// Register the plugins for the flutter application, to the new flutter view/engine
-  fl_register_plugins(FL_PLUGIN_REGISTRY(view));
-
-  gtk_widget_grab_focus(GTK_WIDGET(view));
-
-  /// Free the CLI args array
-  for (size_t i = 0; i < args.size(); ++i) {
-    delete[] cli_args[i];
-  }
-  delete[] cli_args;
 }
 
 /**
