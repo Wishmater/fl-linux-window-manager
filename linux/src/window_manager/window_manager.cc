@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <gdk/gdkwayland.h>
+#include <string>
 #include <window_manager/window_manager.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <protocol_bindings/wlr_layer_shell_protocol_client.h>
@@ -312,23 +313,26 @@ void FLWM::WindowManager::closeWindow() {
     wl_region_destroy(window->inputRegion);
   }
 
-  GtkWidget* fl_view = GTK_WIDGET(gtk_container_get_children(GTK_CONTAINER(window->window))->data);
-  gtk_container_remove(GTK_CONTAINER(window->window), fl_view);
+  GtkWindow* gtkWindow = window->window;
+  GList* childrenList = gtk_container_get_children(GTK_CONTAINER(gtkWindow));
+  if (childrenList != NULL) {
+      GtkWidget* fl_view = GTK_WIDGET(childrenList->data);
+      gtk_container_remove(GTK_CONTAINER(window->window), fl_view);
+  }
   gtk_window_close(window->window);
-
-  /// Remove the window from the list of windows
-  windows.erase(window->id);
-
-  /// Free the window object
-  window->id = "";
-  window->window = nullptr;
-
+  
   /// Clear the method channels for this window
   for (auto const& [key, val] : window->methodChannels) {
+      std::cout << "METHOD CHANNEL CALL HANDLER" << std::endl;
     fl_method_channel_set_method_call_handler(val, NULL, NULL, NULL);
     g_object_unref(val);
   }
+
   window->methodChannels.clear();
+  window->window = nullptr;
+
+  // Remove the window from the list of windows
+  windows.erase(window->id);
 }
 
 void FLWM::WindowManager::hideWindow() {
