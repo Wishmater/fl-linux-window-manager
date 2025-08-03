@@ -208,8 +208,9 @@ class FlLinuxWindowManager {
       'windowId': windowId,
     }));
     return monitors.map((e) {
-      final i = e.indexOf(':');
-      return Monitor(int.parse(e.substring(0, i)), e.substring(i + 1));
+      final split = e.split("\n");
+      assert (split.length == 3, "listMonitors bad result parsing $e");
+      return Monitor(int.parse(split[0]), split[1], split[2]);
     }).toList();
   }
 
@@ -318,11 +319,12 @@ class FlLinuxWindowManager {
 class Monitor {
   final int id;
   final String name;
+  final String connector;
 
-  Monitor(this.id, this.name);
+  Monitor(this.id, this.name, this.connector);
 
   @override
   String toString() {
-    return '$id: $name';
+    return '$id: $name $connector';
   }
 }

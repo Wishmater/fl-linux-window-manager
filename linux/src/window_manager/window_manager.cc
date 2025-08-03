@@ -308,12 +308,14 @@ void FLWM::WindowManager::setLayerExclusiveZone(int length) {
 
 void FLWM::WindowManager::listMonitors(void* fl_list) {
     GdkDisplay *display = gdk_display_get_default();
+    GdkScreen *screen = gdk_screen_get_default();
 
     auto result = (FlValue*) fl_list;
     for (int i = 0; i < gdk_display_get_n_monitors(display); i++)
     {
       GdkMonitor *monitor = gdk_display_get_monitor(display, i);
-      gchar *val = g_strdup_printf("%i:%s", i, gdk_monitor_get_model(monitor));
+      gchar *val = g_strdup_printf("%i\n%s\n%s", i, gdk_monitor_get_model(monitor),
+                                   gdk_screen_get_monitor_plug_name(screen, i));
       fl_value_append_take(result, fl_value_new_string(val));
     }
 }
