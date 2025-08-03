@@ -215,7 +215,7 @@ class FlLinuxWindowManager {
   }
 
   Future<void> setMonitor(int monitorId, {String windowId = _mainWindowId}) {
-    return _methodChannel.invokeMethod('closeWindow', {
+    return _methodChannel.invokeMethod('setMonitor', {
       'windowId': windowId,
       'monitorId': monitorId,
     });
