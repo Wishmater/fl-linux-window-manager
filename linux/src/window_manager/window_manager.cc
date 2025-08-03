@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <gdk/gdkwayland.h>
+#include <vector>
 #include <window_manager/window_manager.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <protocol_bindings/wlr_layer_shell_protocol_client.h>
@@ -306,17 +307,17 @@ void FLWM::WindowManager::setLayerExclusiveZone(int length) {
   wl_surface_commit(wlSurface);
 }
 
-void FLWM::WindowManager::listMonitors(void* fl_list) {
+void FLWM::WindowManager::listMonitors(std::vector<gchar*> *response_list) {
     GdkDisplay *display = gdk_display_get_default();
     GdkScreen *screen = gdk_screen_get_default();
 
-    auto result = (FlValue*) fl_list;
     for (int i = 0; i < gdk_display_get_n_monitors(display); i++)
     {
       GdkMonitor *monitor = gdk_display_get_monitor(display, i);
-      gchar *val = g_strdup_printf("%i\n%s\n%s", i, gdk_monitor_get_model(monitor),
-                                   gdk_screen_get_monitor_plug_name(screen, i));
-      fl_value_append_take(result, fl_value_new_string(val));
+      gchar *val = g_strdup_printf("%i\n%s\n%s\n%i", i, gdk_monitor_get_model(monitor),
+                                   gdk_screen_get_monitor_plug_name(screen, i), // TODO this function is deprecated, GDK4 as the connector in the monitor class
+                                   gdk_monitor_is_primary(monitor) ? 1 : 0);
+      response_list->push_back(val);
     }
 }
 

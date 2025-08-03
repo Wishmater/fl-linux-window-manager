@@ -165,7 +165,7 @@ namespace FLWM {
         /**
          * List of all monitors, recieve a FlValue of type list
          */
-        void listMonitors(void*);
+        void listMonitors(std::vector<gchar*> *response_list);
 
         /**
          * Set the monitor for the window

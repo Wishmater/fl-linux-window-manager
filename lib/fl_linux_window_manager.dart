@@ -209,8 +209,13 @@ class FlLinuxWindowManager {
     }));
     return monitors.map((e) {
       final split = e.split("\n");
-      assert (split.length == 3, "listMonitors bad result parsing $e");
-      return Monitor(int.parse(split[0]), split[1], split[2]);
+      assert(split.length >= 4, "listMonitors bad result parsing $e");
+      return Monitor(
+        int.parse(split[0]),
+        int.parse(split[1]) == 0 ? false : true,
+        split[2],
+        split[3],
+      );
     }).toList();
   }
 
@@ -318,13 +323,14 @@ class FlLinuxWindowManager {
 
 class Monitor {
   final int id;
+  final bool isPrimary;
   final String name;
   final String connector;
 
-  Monitor(this.id, this.name, this.connector);
+  const Monitor(this.id, this.isPrimary, this.name, this.connector);
 
   @override
   String toString() {
-    return '$id: $name $connector';
+    return '$id: $name $connector primary: $isPrimary';
   }
 }

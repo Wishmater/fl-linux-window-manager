@@ -141,9 +141,20 @@ void messageHandler(
         }
         else if (strcmp(methodName, "listMonitors") == 0) {
             FLWM::WindowManager manager(windowId);
-            g_autoptr(FlValue) result = fl_value_new_list();
-            manager.listMonitors(result);
-            fl_method_call_respond(methodCall, FL_METHOD_RESPONSE(fl_method_success_response_new(result)), NULL);
+            std::vector<gchar*> response_list{};
+            manager.listMonitors(&response_list);
+            {   // create fl_response
+                g_autoptr(FlValue) result = fl_value_new_list();
+                for (gchar* val: response_list) {
+                    fl_value_append_take(result, fl_value_new_string(val));
+                }
+                fl_method_call_respond(methodCall, FL_METHOD_RESPONSE(fl_method_success_response_new(result)), NULL);
+            }
+            {   // free vector values
+                for (gchar* val: response_list) {
+                    g_free(val);
+                }
+            }
             return;
         }
         else if (strcmp(methodName, "setMonitor") == 0) {
