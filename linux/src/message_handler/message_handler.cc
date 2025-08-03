@@ -139,6 +139,18 @@ void messageHandler(
 
             manager.setLayerExclusiveZone(length);
         }
+        else if (strcmp(methodName, "listMonitors") == 0) {
+            FLWM::WindowManager manager(windowId);
+            g_autoptr(FlValue) result = fl_value_new_list();
+            manager.listMonitors(result);
+            fl_method_call_respond(methodCall, FL_METHOD_RESPONSE(fl_method_success_response_new(result)), NULL);
+            return;
+        }
+        else if (strcmp(methodName, "setMonitor") == 0) {
+            FLWM::WindowManager manager(windowId);
+            int id = FLWM::MethodCallArgUtils::getInt(methodCall, "monitorId");
+            manager.setMonitor(id);
+        }
         else if (strcmp(methodName, "closeWindow") == 0) {
             FLWM::WindowManager manager(windowId);
             manager.closeWindow();

@@ -10,8 +10,7 @@ class FlLinuxWindowManager {
   static int _windowIdCounter = 1;
 
   /// The method channel used to communicate with the platform side.
-  final MethodChannel _methodChannel =
-      const MethodChannel('fl_linux_window_manager');
+  final MethodChannel _methodChannel = const MethodChannel('fl_linux_window_manager');
 
   /// Private constructor
   FlLinuxWindowManager._();
@@ -197,11 +196,27 @@ class FlLinuxWindowManager {
   /// layer shell protocol docs for more information)
   ///
   /// The [windowId] is the ID of the window.
-  Future<void> setLayerExclusiveZone(int value,
-      {String windowId = _mainWindowId}) {
+  Future<void> setLayerExclusiveZone(int value, {String windowId = _mainWindowId}) {
     return _methodChannel.invokeMethod('setLayerExclusiveZone', {
       'length': value,
       'windowId': windowId,
+    });
+  }
+
+  Future<List<Monitor>> listMonitors({String windowId = _mainWindowId}) async {
+    final monitors = List<String>.from(await _methodChannel.invokeMethod('listMonitors', {
+      'windowId': windowId,
+    }));
+    return monitors.map((e) {
+      final i = e.indexOf(':');
+      return Monitor(int.parse(e.substring(0, i)), e.substring(i + 1));
+    }).toList();
+  }
+
+  Future<void> setMonitor(int monitorId, {String windowId = _mainWindowId}) {
+    return _methodChannel.invokeMethod('closeWindow', {
+      'windowId': windowId,
+      'monitorId': monitorId,
     });
   }
 
@@ -297,5 +312,17 @@ class FlLinuxWindowManager {
       'height': inputRegion.height.toInt(),
       'windowId': windowId,
     });
+  }
+}
+
+class Monitor {
+  final int id;
+  final String name;
+
+  Monitor(this.id, this.name);
+
+  @override
+  String toString() {
+    return '$id: $name';
   }
 }

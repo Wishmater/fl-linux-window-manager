@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include <gdk/gdkwayland.h>
-#include <string>
 #include <window_manager/window_manager.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <protocol_bindings/wlr_layer_shell_protocol_client.h>
@@ -198,32 +197,32 @@ void FLWM::WindowManager::createWindow(
   if (initializeFlutter) {
     /// Create the dart VM and start the flutter engine
     g_autoptr(FlDartProject) project = fl_dart_project_new();
-    
+
     /// CLI arguments to be passed to the dart entrypoint main() function
     /// The last item in this array must be a NULL pointer, to indicate the end of the array items.
     /// Otherwise errors will occur.
     int cli_args_size = args.size() + 1;
     char** cli_args = new char* [cli_args_size];
-    
+
     for (size_t i = 0; i < args.size(); ++i) {
         cli_args[i] = new char[args[i].size() + 1];
         strcpy(cli_args[i], args[i].c_str());
     }
-    
+
     /// CLI arguments list must be terminated with a NULL pointer
     /// Otherwise, the dart VM will crash
     cli_args[cli_args_size - 1] = nullptr;
-    
+
     fl_dart_project_set_dart_entrypoint_arguments(project, cli_args);
-    
-    
+
+
     FlView* view = fl_view_new(project);
     gtk_widget_show(GTK_WIDGET(view));
     gtk_container_add(GTK_CONTAINER(newWindow), GTK_WIDGET(view));
-    
+
     /// Register the plugins for the flutter application, to the new flutter view/engine
     fl_register_plugins(FL_PLUGIN_REGISTRY(view));
-    
+
     gtk_widget_grab_focus(GTK_WIDGET(view));
     /// Free the CLI args array
     for (size_t i = 0; i < args.size(); ++i) {
@@ -301,10 +300,33 @@ void FLWM::WindowManager::setLayerExclusiveZone(int length) {
 
   struct zwlr_layer_surface_v1* layerSurface = gtk_layer_get_zwlr_layer_surface_v1(w);
   zwlr_layer_surface_v1_set_exclusive_zone(layerSurface, length);
-  
+
   GdkWindow* gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
   struct wl_surface* wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
   wl_surface_commit(wlSurface);
+}
+
+void FLWM::WindowManager::listMonitors(void* fl_list) {
+    GdkDisplay *display = gdk_display_get_default();
+
+    auto result = (FlValue*) fl_list;
+    for (int i = 0; i < gdk_display_get_n_monitors(display); i++)
+    {
+      GdkMonitor *monitor = gdk_display_get_monitor(display, i);
+      gchar *val = g_strdup_printf("%i:%s", i, gdk_monitor_get_model(monitor));
+      fl_value_append_take(result, fl_value_new_string(val));
+    }
+}
+
+void FLWM::WindowManager::setMonitor(int id) {
+    GtkWindow* w = GTK_WINDOW(window->window);
+    GdkDisplay *display = gdk_display_get_default();
+    if (id == -1) {
+      gtk_layer_set_monitor(w, NULL);
+      return;
+    }
+    GdkMonitor *monitor = gdk_display_get_monitor(display, id);
+    gtk_layer_set_monitor(w, monitor);
 }
 
 void FLWM::WindowManager::closeWindow() {
@@ -320,7 +342,7 @@ void FLWM::WindowManager::closeWindow() {
       gtk_container_remove(GTK_CONTAINER(window->window), fl_view);
   }
   gtk_window_close(window->window);
-  
+
   /// Clear the method channels for this window
   for (auto const& [key, val] : window->methodChannels) {
       std::cout << "METHOD CHANNEL CALL HANDLER" << std::endl;
@@ -373,7 +395,7 @@ void FLWM::WindowManager::sendMethodCall(
   std::string channelName,
   std::string methodName,
   FlValue* args) {
-  /// Get the method channel from the window 
+  /// Get the method channel from the window
   FlMethodChannel* channel = window->methodChannels[channelName];
 
   if (channel == NULL) {

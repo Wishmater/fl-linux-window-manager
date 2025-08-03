@@ -163,6 +163,16 @@ namespace FLWM {
         void closeWindow();
 
         /**
+         * List of all monitors, recieve a FlValue of type list
+         */
+        void listMonitors(void*);
+
+        /**
+         * Set the monitor for the window
+         */
+        void setMonitor(int index);
+
+        /**
          * Hide the window from the screen.
          */
         void hideWindow();
