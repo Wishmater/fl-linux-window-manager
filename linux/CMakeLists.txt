@@ -35,8 +35,8 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
-find_library(GTK_LAYER_SHELL gtk-layer-shell REQUIRED)
-target_link_libraries(${PLUGIN_NAME} PRIVATE ${GTK_LAYER_SHELL})
+pkg_check_modules(GTK_LAYER_SHELL REQUIRED IMPORTED_TARGET gtk-layer-shell-0)
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK_LAYER_SHELL)
 
 
 # List of absolute paths to libraries that should be bundled with the plugin.
