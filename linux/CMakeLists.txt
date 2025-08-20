@@ -33,8 +33,8 @@ target_include_directories(${PLUGIN_NAME} PUBLIC
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 
-find_library(GTK3 gtk-3 REQUIRED)
-target_link_libraries(${PLUGIN_NAME} PRIVATE ${GTK3})
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
+
 find_library(GTK_LAYER_SHELL gtk-layer-shell REQUIRED)
 target_link_libraries(${PLUGIN_NAME} PRIVATE ${GTK_LAYER_SHELL})
 
