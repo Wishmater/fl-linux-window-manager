@@ -319,6 +319,13 @@ class FlLinuxWindowManager {
       'windowId': windowId,
     });
   }
+
+  Future<String?> getXdgToken({String windowId = _mainWindowId}) async {
+    final String? response = await _methodChannel.invokeMethod('getXdgToken', {
+      'windowId': windowId,
+    });
+    return response;
+  }
 }
 
 class Monitor {

@@ -1,8 +1,10 @@
 
+#include <cstddef>
 #include <iostream>
 #include <string.h>
 
 #include <gdk/gdkwayland.h>
+#include <gio/gio.h>
 #include <vector>
 #include <window_manager/window_manager.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
@@ -366,6 +368,15 @@ void FLWM::WindowManager::hideWindow() {
 
 void FLWM::WindowManager::showWindow() {
   gtk_widget_show(GTK_WIDGET(window->window));
+}
+
+char* FLWM::WindowManager::getXdgToken() {
+  GdkDisplay *gdk_display = gdk_display_get_default();
+
+  GdkAppLaunchContext* context =  gdk_display_get_app_launch_context(gdk_display);
+  char* resp = g_app_launch_context_get_startup_notify_id(G_APP_LAUNCH_CONTEXT(context), NULL, NULL);
+  g_object_unref(context);
+  return resp;
 }
 
 void FLWM::WindowManager::createMethodChannel(

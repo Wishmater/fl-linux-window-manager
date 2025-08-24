@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 
 #include <message_handler/message_handler.h>
@@ -196,7 +197,14 @@ void messageHandler(
 
             manager.subtractInputRegion(x, y, width, height);
         }
-        else {
+        else if (strcmp(methodName, "getXdgToken") == 0) {
+            FLWM::WindowManager manager(windowId);
+            char* response = manager.getXdgToken();
+            g_autoptr(FlValue) result = fl_value_new_string(response);
+            fl_method_call_respond(methodCall, FL_METHOD_RESPONSE(fl_method_success_response_new(result)), NULL);
+            free(response);
+            return;
+        } else {
             std::cerr << "Method not implemented: " << methodName << std::endl;
             fl_method_call_respond(methodCall, FLWM::MethodResponseUtils::methodNotImplementedError(), NULL);
             return;

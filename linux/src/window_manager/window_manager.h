@@ -208,5 +208,10 @@ namespace FLWM {
          * Subtract the given region from the input region of the window.
          */
         void subtractInputRegion(int x, int y, int width, int height);
+
+        /**
+         * Uses the xdg activation protocol to get a xdg activation token
+         */
+        char* getXdgToken();
     };
 }
