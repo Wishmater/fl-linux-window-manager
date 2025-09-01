@@ -73,17 +73,18 @@ class InputRegionController {
 
     for (final item in keys) {
       /// Get the size and position of the widget.
-      final RenderBox renderBox =
-          item.key.currentContext!.findRenderObject() as RenderBox;
+      final context = item.key.currentContext!;
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
       final size = renderBox.size;
       final position = renderBox.localToGlobal(Offset.zero);
 
       /// Set the input region to the size and position of the widget.
+      final screenSize = MediaQuery.sizeOf(context);
       final Rect region = Rect.fromLTWH(
-        position.dx,
-        position.dy,
-        size.width,
-        size.height,
+        position.dx.clamp(0, screenSize.width),
+        position.dy.clamp(0, screenSize.height),
+        size.width.clamp(0, screenSize.width),
+        size.height.clamp(0, screenSize.height),
       );
 
       if (item.isNegative) {
