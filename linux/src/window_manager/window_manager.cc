@@ -67,6 +67,22 @@ FLWM::WindowManager::WindowManager(std::string id) {
 }
 
 void FLWM::WindowManager::convertToLayer(GtkWindow* window) {
+  // TODO hyprland-focus-grab-v1: bind the global interface
+  // Code example:
+  // static const struct wl_registry_listener wl_registry_listener = {
+  //     // where wl_registry_handle_global will bind the hyprland_focus_grab_manager_v1
+  //     .global = wl_registry_handle_global,
+  //     // here we could destroy hyprland_focus_grab_manager_v1 but this is not necessary
+  //     .global_remove = wl_registry_handle_global_remove,
+  // };
+  //
+  // struct wl_display *wl_display = gdk_wayland_display_get_wl_display (gdk_display);
+  // wl_registry_global = wl_display_get_registry (wl_display);
+  // wl_registry_add_listener (wl_registry_global, &wl_registry_listener, NULL);
+  // wl_display_roundtrip (wl_display);
+  //
+  // After we have the interface binded we can call hyprland focus grab methdod normally
+
   /// Initialize the window for layer-shell
   gtk_layer_init_for_window(GTK_WINDOW(window));
 
