@@ -15,6 +15,12 @@ class InputRegionController {
   /// that is we should disable inputs in this region.
   static final Set<GlobalKey> _negativeRegionKeys = {};
 
+  // Track if we have pending updates
+  static bool _hasPendingUpdate = false;
+  static DateTime _lastUpdateTime = DateTime.now();
+  // Throttle interval (e.g., max 10 updates per second)
+  static const _throttleInterval = Duration(milliseconds: 100);
+
   /// Adds a global key to the list of keys.
   static void addKey(
     GlobalKey key, {
@@ -45,18 +51,29 @@ class InputRegionController {
     _ensureUpdateScheduled();
   }
 
-  static bool _isUpdateScheduled = false;
   static void _ensureUpdateScheduled() {
-    if (_isUpdateScheduled) return;
-    _isUpdateScheduled = true;
-    // Any call to refreshInputRegion must be delayed a frame to ensure size and position
-    // are calculated correctly. This also ensure it is called only once per frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshInputRegion();
-      _isUpdateScheduled = false;
-    });
-    // make sure another frame happens, even if it's not needed for UI
-    SchedulerBinding.instance.scheduleFrame();
+    if (_hasPendingUpdate) return;
+    _hasPendingUpdate = true;
+
+    final now = DateTime.now();
+    final timeSinceLastUpdate = now.difference(_lastUpdateTime);
+    if (timeSinceLastUpdate < _throttleInterval) {
+      Future.delayed(_throttleInterval - timeSinceLastUpdate, () {
+        _refreshInputRegion();
+        _lastUpdateTime = DateTime.now();
+        _hasPendingUpdate = false;
+      });
+    } else {
+      // Any call to refreshInputRegion must be delayed a frame to ensure size and position
+      // are calculated correctly. This also ensure it is called only once per frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshInputRegion();
+        _lastUpdateTime = DateTime.now();
+        _hasPendingUpdate = false;
+      });
+      // make sure another frame happens, even if it's not needed for UI
+      SchedulerBinding.instance.scheduleFrame();
+    }
   }
 
   /// This will be called whenever there is a change in the InputRegion widget.
@@ -71,6 +88,7 @@ class InputRegionController {
     ];
     keys.sort((a, b) => _findDepth(a.key).compareTo(_findDepth(b.key)));
 
+    Size? screenSize;
     for (final item in keys) {
       /// Get the size and position of the widget.
       final context = item.key.currentContext!;
@@ -79,7 +97,7 @@ class InputRegionController {
       final position = renderBox.localToGlobal(Offset.zero);
 
       /// Set the input region to the size and position of the widget.
-      final screenSize = MediaQuery.sizeOf(context);
+      screenSize ??= MediaQuery.sizeOf(context);
       final Rect region = Rect.fromLTWH(
         position.dx.clamp(0, screenSize.width),
         position.dy.clamp(0, screenSize.height),
