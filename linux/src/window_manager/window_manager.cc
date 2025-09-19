@@ -18,6 +18,7 @@
 std::map<std::string, FLWM::Window> FLWM::WindowManager::windows;
 wl_compositor *FLWM::WindowManager::compositor = NULL;
 struct hyprland_focus_grab_manager_v1 *grab_manager = NULL;
+struct hyprland_focus_grab_v1 *grab = NULL;
 
 void _registryHandler(void *data, struct wl_registry *registry,
                       uint32_t id, const char *interface, uint32_t version)
@@ -31,6 +32,7 @@ void _registryHandler(void *data, struct wl_registry *registry,
   {
     grab_manager =
         static_cast<hyprland_focus_grab_manager_v1 *>(wl_registry_bind(registry, id, &hyprland_focus_grab_manager_v1_interface, 1));
+    grab = hyprland_focus_grab_manager_v1_create_grab(grab_manager);
   }
 }
 
@@ -85,24 +87,31 @@ FLWM::WindowManager::WindowManager(std::string id)
 void _cleared(void *data, struct hyprland_focus_grab_v1 *focus_grab)
 {
   event_channel_send_signal();
-  g_print("---- called event_channel_send_signal ----\n");
 }
 
 struct hyprland_focus_grab_v1_listener listener = {
     .cleared = _cleared,
 };
 
-void FLWM::WindowManager::createFocusGrab()
+void FLWM::WindowManager::focusGrab()
 {
   GdkWindow *gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
   struct wl_surface *wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
 
-  struct hyprland_focus_grab_v1 *grab = hyprland_focus_grab_manager_v1_create_grab(grab_manager);
+  // struct hyprland_focus_grab_v1 *grab = hyprland_focus_grab_manager_v1_create_grab(grab_manager);
   hyprland_focus_grab_v1_add_surface(grab, wlSurface);
 
   hyprland_focus_grab_v1_add_listener(grab, &listener, NULL);
   hyprland_focus_grab_v1_commit(grab);
-  g_print("---- called createFocusGrab ----\n");
+}
+
+void FLWM::WindowManager::focusUngrab()
+{
+  GdkWindow *gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
+  struct wl_surface *wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
+
+  hyprland_focus_grab_v1_remove_surface(grab, wlSurface);
+  hyprland_focus_grab_v1_commit(grab);
 }
 
 void FLWM::WindowManager::convertToLayer(GtkWindow *window)

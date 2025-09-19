@@ -90,7 +90,12 @@ void messageHandler(
         else if (strcmp(methodName, "focusGrab") == 0)
         {
             FLWM::WindowManager manager(windowId);
-            manager.createFocusGrab();
+            manager.focusGrab();
+        }
+        else if (strcmp(methodName, "focusUngrab") == 0)
+        {
+            FLWM::WindowManager manager(windowId);
+            manager.focusUngrab();
         }
         else if (strcmp(methodName, "setLayer") == 0)
         {

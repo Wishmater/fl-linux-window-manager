@@ -25,14 +25,8 @@ void fl_linux_window_manager_plugin_register_with_registrar(FlPluginRegistrar *r
         fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
                               "fl_linux_window_manager",
                               FL_METHOD_CODEC(codec));
-    EventChannel::event_channel = fl_event_channel_new(fl_plugin_registrar_get_messenger(registrar),
-                                                       _FL_WM_EVENT_CHANNEL_NAME,
-                                                       FL_METHOD_CODEC(codec));
-    fl_event_channel_set_stream_handlers(EventChannel::event_channel,
-                                         (FlEventChannelHandler)(&event_channel_on_listen),
-                                         (FlEventChannelHandler)(&event_channel_on_cancel),
-                                         NULL, NULL);
 
+    event_channel_init(registrar, FL_METHOD_CODEC(codec));
     /// Setting the callback function to execute when a method call is recieved from dart code.
     ///
     /// Here we are setting the user_data for the callback as the Plugin object itself.

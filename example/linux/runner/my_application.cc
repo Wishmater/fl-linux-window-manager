@@ -74,7 +74,6 @@ static void my_application_activate(GApplication* application) {
   gtk_widget_set_app_paintable(GTK_WIDGET(window), TRUE);
   visual = gdk_screen_get_rgba_visual(screen);
   if (visual != NULL && gdk_screen_is_composited(screen)) {
-    g_print("Set visual applied\n");
     gtk_widget_set_visual(GTK_WIDGET(window), visual);
   }
   //! This code seems to be needed for flutter version 3.19+

@@ -99,7 +99,8 @@ namespace FLWM
          */
         static void addWindow(GtkWindow *window, std::string id);
 
-        void createFocusGrab();
+        void focusGrab();
+        void focusUngrab();
 
         /**
          * Converts the role of the window to a layer shell surface.
