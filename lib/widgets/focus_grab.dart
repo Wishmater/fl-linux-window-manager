@@ -4,15 +4,42 @@ import 'package:fl_linux_window_manager/controller/focus_grab_controller.dart';
 import 'package:fl_linux_window_manager/fl_linux_window_manager.dart';
 import 'package:flutter/widgets.dart';
 
+/// {@template request}
+/// An active request means that the focus grab is currently active
+///
+/// An inactive request instead does not means that the focus grab is inactive,
+/// instead means that this widget does not need the focus grab anymore
+/// {@endtemplate}
+
+class FocusGrabController {
+  FocusGrabState? _state;
+  FocusGrabController() : _state = null;
+
+  /// Send a request to grab the focus if the FocusGrab widget does not have
+  /// an active request
+  ///
+  /// {@macro request}
+  void grabFocus() {
+    _state?.requestFocusGrab();
+  }
+
+  /// Cancel the request for the focus grab if there is an active request for the grab
+  ///
+  /// {@macro request}
+  void ungrabFocus() {
+    _state?.removeFocusGrab();
+  }
+}
+
 class FocusGrab extends StatefulWidget {
-  const FocusGrab({super.key, required this.child, this.callback, this.grabAgain});
+  const FocusGrab({super.key, required this.child, this.callback, this.controller});
 
   final Widget child;
 
   /// Called when the focus grab object is cleared
   final VoidCallback? callback;
 
-  final Stream<()>? grabAgain;
+  final FocusGrabController? controller;
 
   @override
   State<FocusGrab> createState() => FocusGrabState();
@@ -20,30 +47,35 @@ class FocusGrab extends StatefulWidget {
 
 class FocusGrabState extends State<FocusGrab> {
   FocusGrabRequest? request;
-  final controller = FocusGrabController();
+  final handlerController = FocusGrabHandlerController();
   late final StreamSubscription<()> foucsSubscription;
-  late final StreamSubscription<()>? widgetSubscription;
 
   @override
   void initState() {
     super.initState();
-    request = controller.requestFocusGrab();
+    widget.controller?._state = this;
+
+    requestFocusGrab();
     foucsSubscription = FlLinuxWindowManager.instance.focusGrabCleared.listen((_) {
       request = null;
       widget.callback?.call();
     });
-    widgetSubscription = widget.grabAgain?.listen((_) {
-      request = controller.requestFocusGrab();
-    });
+  }
+
+  void requestFocusGrab() {
+    request ??= handlerController.requestFocusGrab();
+  }
+
+  void removeFocusGrab() {
+    if (request != null) {
+      handlerController.removeFocusGrab(request!);
+    }
   }
 
   @override
   void dispose() {
-    if (request != null) {
-      controller.removeFocusGrab(request!);
-    }
+    removeFocusGrab();
     foucsSubscription.cancel();
-    widgetSubscription?.cancel();
     super.dispose();
   }
 

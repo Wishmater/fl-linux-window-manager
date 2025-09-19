@@ -12,7 +12,7 @@ int get _newID {
 typedef FocusGrabRequest = int;
 
 /// WARNING Only works for main window
-class FocusGrabController {
+class FocusGrabHandlerController {
 
   static final Set<FocusGrabRequest> _request = {};  
 
