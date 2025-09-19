@@ -3,6 +3,8 @@ import 'package:fl_linux_window_manager/models/layer.dart';
 import 'package:flutter/services.dart';
 
 class FlLinuxWindowManager {
+  static const channel = EventChannel("fl_linux_window_manager/events");
+
   /// The ID of the main window of the app.
   static const String _mainWindowId = 'main';
 
@@ -300,6 +302,10 @@ class FlLinuxWindowManager {
       'height': inputRegion.height.toInt(),
       'windowId': windowId,
     });
+  }
+
+  Future<void> focusGrab({String windowId = _mainWindowId}) async {
+    return _methodChannel.invokeMethod('focusGrab', {'windowId': windowId});
   }
 
   /// Subtract a given rect from the input region of the window with the given window ID.

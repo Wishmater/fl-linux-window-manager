@@ -14,10 +14,15 @@ set(PLUGIN_NAME "fl_linux_window_manager_plugin")
 # Find all source files in the src folder.
 file(GLOB_RECURSE SRC_FILES "src/*.cc")
 
+enable_language(C)
+
+SET(ADDITIONAL_SRC "src/protocol_bindings/hyprland_focus_grab.c")
+set_source_files_properties(${ADDITIONAL_SRC} PROPERTIES LANGUAGE C)
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
   ${SRC_FILES}
+  ${ADDITIONAL_SRC}
 )
 
 # Symbols are hidden by default to reduce the chance of accidental conflicts

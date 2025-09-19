@@ -36,11 +36,11 @@
 #include "wayland-util.h"
 
 #ifndef __has_attribute
-# define __has_attribute(x) 0  /* Compatibility with non-clang compilers. */
+#define __has_attribute(x) 0 /* Compatibility with non-clang compilers. */
 #endif
 
 #if (__has_attribute(visibility) || defined(__GNUC__) && __GNUC__ >= 4)
-#define WL_PRIVATE __attribute__ ((visibility("hidden")))
+#define WL_PRIVATE __attribute__((visibility("hidden")))
 #else
 #define WL_PRIVATE
 #endif
@@ -55,30 +55,35 @@ static const struct wl_interface *hyprland_focus_grab_v1_types[] = {
 };
 
 static const struct wl_message hyprland_focus_grab_manager_v1_requests[] = {
-	{ "create_grab", "n", hyprland_focus_grab_v1_types + 0 },
-	{ "destroy", "", hyprland_focus_grab_v1_types + 0 },
+	{"create_grab", "n", hyprland_focus_grab_v1_types + 0},
+	{"destroy", "", hyprland_focus_grab_v1_types + 0},
 };
 
-WL_PRIVATE const struct wl_interface hyprland_focus_grab_manager_v1_interface = {
-	"hyprland_focus_grab_manager_v1", 1,
-	2, hyprland_focus_grab_manager_v1_requests,
-	0, NULL,
+const struct wl_interface hyprland_focus_grab_manager_v1_interface = {
+	"hyprland_focus_grab_manager_v1",
+	1,
+	2,
+	hyprland_focus_grab_manager_v1_requests,
+	0,
+	NULL,
 };
 
 static const struct wl_message hyprland_focus_grab_v1_requests[] = {
-	{ "add_surface", "o", hyprland_focus_grab_v1_types + 1 },
-	{ "remove_surface", "o", hyprland_focus_grab_v1_types + 2 },
-	{ "commit", "", hyprland_focus_grab_v1_types + 0 },
-	{ "destroy", "", hyprland_focus_grab_v1_types + 0 },
+	{"add_surface", "o", hyprland_focus_grab_v1_types + 1},
+	{"remove_surface", "o", hyprland_focus_grab_v1_types + 2},
+	{"commit", "", hyprland_focus_grab_v1_types + 0},
+	{"destroy", "", hyprland_focus_grab_v1_types + 0},
 };
 
 static const struct wl_message hyprland_focus_grab_v1_events[] = {
-	{ "cleared", "", hyprland_focus_grab_v1_types + 0 },
+	{"cleared", "", hyprland_focus_grab_v1_types + 0},
 };
 
 WL_PRIVATE const struct wl_interface hyprland_focus_grab_v1_interface = {
-	"hyprland_focus_grab_v1", 1,
-	4, hyprland_focus_grab_v1_requests,
-	1, hyprland_focus_grab_v1_events,
+	"hyprland_focus_grab_v1",
+	1,
+	4,
+	hyprland_focus_grab_v1_requests,
+	1,
+	hyprland_focus_grab_v1_events,
 };
-
