@@ -32,7 +32,13 @@ class FocusGrabController {
 }
 
 class FocusGrab extends StatefulWidget {
-  const FocusGrab({super.key, required this.child, this.callback, this.controller});
+  const FocusGrab({
+    super.key,
+    required this.child,
+    this.callback,
+    this.controller,
+    this.grabOnInit = true,
+  }) : assert(grabOnInit == true || controller != null, "grabOnInit cannot be false if controller is null because then this widget is a noop");
 
   final Widget child;
 
@@ -40,6 +46,9 @@ class FocusGrab extends StatefulWidget {
   final VoidCallback? callback;
 
   final FocusGrabController? controller;
+
+  /// If true will request focus grab on init state
+  final bool grabOnInit;
 
   @override
   State<FocusGrab> createState() => FocusGrabState();
@@ -54,11 +63,14 @@ class FocusGrabState extends State<FocusGrab> {
   void initState() {
     super.initState();
     widget.controller?._state = this;
-
-    requestFocusGrab();
+    if (widget.grabOnInit) {
+      requestFocusGrab();
+    }
     foucsSubscription = FlLinuxWindowManager.instance.focusGrabCleared.listen((_) {
-      request = null;
-      widget.callback?.call();
+      if (request != null) {
+        removeFocusGrab();
+        widget.callback?.call();
+      }
     });
   }
 
@@ -69,6 +81,7 @@ class FocusGrabState extends State<FocusGrab> {
   void removeFocusGrab() {
     if (request != null) {
       handlerController.removeFocusGrab(request!);
+      request = null;
     }
   }
 

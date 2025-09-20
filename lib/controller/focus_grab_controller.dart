@@ -15,11 +15,12 @@ typedef FocusGrabRequest = int;
 class FocusGrabHandlerController {
 
   static final Set<FocusGrabRequest> _request = {};  
+  static bool _withFocus = false;
 
   FocusGrabRequest requestFocusGrab() {
     final id = _newID;
     _request.add(id);
-    if (_request.length == 1) {
+    if (!_withFocus) {
       _addSurface();
     }
     return id;
@@ -28,15 +29,21 @@ class FocusGrabHandlerController {
   void removeFocusGrab(FocusGrabRequest request) {
     _request.remove(request);
     if (_request.isEmpty) {
-      _removeSurface();
+      // delay _removeSurface to allow rapid remove/add focus grab requests
+      // and not call that many times the native code
+      Future.delayed(Duration(milliseconds: 50), () {
+        if (_request.isEmpty && _withFocus) _removeSurface();
+      });
     }
   }
 
   Future<void> _addSurface() async {
     await FlLinuxWindowManager.instance.focusGrab();
+    _withFocus = true;
   }
 
   Future<void> _removeSurface() async {
-    FlLinuxWindowManager.instance.focusUngrab();
+    await FlLinuxWindowManager.instance.focusUngrab();
+    _withFocus = false;
   }
 }
