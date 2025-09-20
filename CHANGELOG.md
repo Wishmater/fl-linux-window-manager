@@ -20,3 +20,5 @@ Input region management.
 
 - Allows to manage the input regions of the window.
 - Widgets added for positive and negative input region marking.
+
+
