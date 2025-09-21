@@ -38,7 +38,7 @@ class FocusGrab extends StatefulWidget {
     this.callback,
     this.controller,
     this.grabOnInit = true,
-  }) : assert(grabOnInit == true || controller != null, "grabOnInit cannot be false if controller is null because then this widget is a noop");
+  });
 
   final Widget child;
 
