@@ -3,16 +3,19 @@ import 'package:flutter/cupertino.dart';
 
 class InputRegion extends StatefulWidget {
   final Widget child;
+  final bool active;
   final bool isNegative;
 
   const InputRegion({
     required this.child,
+    this.active = true,
     this.isNegative = false,
     super.key,
   });
   const InputRegion.negative({
-    super.key,
     required this.child,
+    this.active = true,
+    super.key,
   }) : isNegative = true;
 
   @override
@@ -20,28 +23,42 @@ class InputRegion extends StatefulWidget {
 }
 
 class _InputRegionState extends State<InputRegion> {
+  // TODO: 1 don't use a global key, instead pass a callback into the controller that can get size from context
   final GlobalKey _key = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     // Add the input region GlobalKey to the controller
-    InputRegionController.addKey(
-      _key,
-      isNegative: widget.isNegative,
-    );
-    scheduleCheckForPositionOrSizeChanges();
+    if (widget.active) {
+      InputRegionController.addKey(
+        _key,
+        isNegative: widget.isNegative,
+      );
+      scheduleCheckForPositionOrSizeChanges();
+    }
   }
 
   @override
   void didUpdateWidget(covariant InputRegion oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isNegative != widget.isNegative) {
-      // Update the key in the controller with the new isNegative value
-      InputRegionController.addKey(
-        _key,
-        isNegative: widget.isNegative,
-      );
+    if (widget.active != oldWidget.active) {
+      if (widget.active) {
+        InputRegionController.addKey(
+          _key,
+          isNegative: widget.isNegative,
+        );
+      } else {
+        InputRegionController.removeKey(_key);
+      }
+    } else if (widget.active) {
+      if (oldWidget.isNegative != widget.isNegative) {
+        // Update the key in the controller with the new isNegative value
+        InputRegionController.addKey(
+          _key,
+          isNegative: widget.isNegative,
+        );
+      }
     }
   }
 

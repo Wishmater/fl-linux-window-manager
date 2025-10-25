@@ -26,21 +26,26 @@ class InputRegionController {
     GlobalKey key, {
     bool isNegative = false,
   }) {
+    bool added;
     if (isNegative) {
       _positiveRegionKeys.remove(key); // just in case a key switches isNegative
-      _negativeRegionKeys.add(key);
+      added = _negativeRegionKeys.add(key);
     } else {
       _negativeRegionKeys.remove(key); // just in case a key switches isNegative
-      _positiveRegionKeys.add(key);
+      added = _positiveRegionKeys.add(key);
     }
-    _ensureUpdateScheduled();
+    if (added) {
+      _ensureUpdateScheduled();
+    }
   }
 
   /// Removes a global key from the list of keys.
   static void removeKey(GlobalKey key) {
-    _negativeRegionKeys.remove(key);
-    _positiveRegionKeys.remove(key);
-    _ensureUpdateScheduled();
+    final removedNegative = _negativeRegionKeys.remove(key);
+    final removedPositive = _positiveRegionKeys.remove(key);
+    if (removedNegative || removedPositive) {
+      _ensureUpdateScheduled();
+    }
   }
 
   static void notifyRegionChange(GlobalKey key) {
