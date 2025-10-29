@@ -95,6 +95,8 @@ struct hyprland_focus_grab_v1_listener listener = {
 
 void FLWM::WindowManager::focusGrab()
 {
+  if (grab == NULL) return;
+
   GdkWindow *gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
   struct wl_surface *wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
 
@@ -107,6 +109,8 @@ void FLWM::WindowManager::focusGrab()
 
 void FLWM::WindowManager::focusUngrab()
 {
+  if (grab == NULL) return;
+
   GdkWindow *gdkWindow = gtk_widget_get_window(GTK_WIDGET(window->window));
   struct wl_surface *wlSurface = gdk_wayland_window_get_wl_surface(gdkWindow);
 
