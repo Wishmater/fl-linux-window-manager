@@ -126,9 +126,6 @@ void FLWM::WindowManager::convertToLayer(GtkWindow *window)
 
   /// Setting the default layer to top
   gtk_layer_set_layer(GTK_WINDOW(window), GTK_LAYER_SHELL_LAYER_TOP);
-
-  /// Setting default keybaord interactivity to on-demand
-  gtk_layer_set_keyboard_mode(GTK_WINDOW(window), GTK_LAYER_SHELL_KEYBOARD_MODE_ON_DEMAND);
 }
 
 void FLWM::WindowManager::setSize(unsigned int width, unsigned int height)
